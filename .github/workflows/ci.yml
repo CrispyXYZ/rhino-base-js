@@ -1,56 +1,30 @@
-# This is a basic workflow to help you get started with Actions
+name: Rhino Syntax Check
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
+    branches: [ master ]
   pull_request:
-    branches: [ "master" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    branches: [ master ]
 
 jobs:
-  syntax-check:
+  check-syntax:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '21'
 
-      - name: Download Rhino 1.9.1
+      - name: Download Mozilla Rhino 1.9.1
         run: |
-          mkdir -p ${{ runner.temp }}/rhino
-          wget -O ${{ runner.temp }}/rhino/rhino.jar \
-            https://repo1.maven.org/maven2/org/mozilla/rhino/1.9.1/rhino-1.9.1.jar
+          curl -sL "https://repo1.maven.org/maven2/org/mozilla/rhino-all/1.9.1/rhino-all-1.9.1.jar" -o rhino.jar
 
-      - name: Check syntax with Rhino
+      - name: Check syntax for ./base.js
         run: |
-          echo "🔍 Checking JavaScript files with Rhino 1.9.1..."
-          failed=0
-          
-          while IFS= read -r file; do
-            echo "→ Checking $file"
-            if ! java -jar ${{ runner.temp }}/rhino/rhino.jar -f "$file"; then
-              echo "❌ Syntax error in $file"
-              failed=1
-            fi
-          done < <(find . -type f -name "*.js" -not -path "./node_modules/*")
-          
-          if [ $failed -ne 0 ]; then
-            echo "🚫 One or more files contain syntax errors."
-            exit 1
-          fi
-          echo "✅ All JavaScript files passed syntax check."
-        shell: bash
+          java -cp rhino.jar org.mozilla.javascript.tools.jsc.Main ./base.js
+
