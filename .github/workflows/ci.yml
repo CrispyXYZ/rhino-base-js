@@ -42,7 +42,7 @@ jobs:
           
           while IFS= read -r file; do
             echo "→ Checking $file"
-            if ! java -jar ${{ runner.temp }}/rhino/rhino.jar -f "$file" > /dev/null 2>&1; then
+            if ! java -jar ${{ runner.temp }}/rhino/rhino.jar -f "$file"; then
               echo "❌ Syntax error in $file"
               failed=1
             fi
