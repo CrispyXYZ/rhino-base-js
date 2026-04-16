@@ -27,4 +27,4 @@ jobs:
       - name: Check syntax for ./base.js
         run: |
           java -cp rhino.jar org.mozilla.javascript.tools.jsc.Main ./base.js
-i
+
